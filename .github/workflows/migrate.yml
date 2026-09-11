@@ -3,8 +3,6 @@ name: One-time MENKIESTESParty Migration
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/migrate.yml'
   workflow_dispatch:
 
 permissions:
@@ -30,8 +28,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Keep destination Git metadata and workflow directory while replacing
-          # repository-root project files with the standalone plugin contents.
           find . -mindepth 1 -maxdepth 1 \
             ! -name '.git' \
             ! -name '.github' \
@@ -42,8 +38,6 @@ jobs:
           cp _source/LICENSE ./LICENSE
           cp _source/.gitignore ./.gitignore
 
-          # Carry the existing build/release pipeline over and rewrite monorepo
-          # paths so it works from this standalone repository root.
           cp _source/.github/workflows/menkiestesparty-build.yml .github/workflows/build.yml
           sed -i 's#plugins/MENKIESTESParty/##g' .github/workflows/build.yml
           sed -i 's#working-directory: plugins/MENKIESTESParty#working-directory: .#g' .github/workflows/build.yml
@@ -51,6 +45,7 @@ jobs:
 
           rm -rf _source
           rm -f .github/workflows/migrate.yml
+          rm -f .migration-trigger
 
       - name: Commit standalone repository
         shell: bash
